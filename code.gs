@@ -6,25 +6,15 @@
  *
  * File: code.gs (Backend API - Google Apps Script)
  *
- * PERUBAHAN PENTING:
- * File ini SEKARANG HANYA BERFUNGSI SEBAGAI API (headless).
- * UI (index.html) tidak lagi disajikan dari sini — UI di-hosting
- * terpisah di GitHub Pages, dan memanggil API ini lewat fetch().
- *
- * Cara kerja:
- *  - Frontend (GitHub Pages) mengirim request POST berisi JSON
- *    dengan field "action" untuk menentukan operasi apa yang
- *    dijalankan (getStudentList / submitAttendance / getSummaryData).
- *  - doPost() membaca action tersebut, memanggil fungsi yang sesuai,
- *    lalu mengembalikan hasil sebagai JSON dengan header CORS supaya
- *    bisa dibaca dari domain GitHub Pages.
+ * PERUBAHAN v2:
+ * - submitAttendance (satu siswa) -> submitBulkAttendance (seluruh kelas sekaligus)
+ * - submitAttendance lama tetap dipertahankan untuk kompatibilitas
  **********************************************************************/
 
 // ============== KONFIGURASI ==============
 const SPREADSHEET_ID = '1_Y-WhaGPLhakGdeE7F8Hqt-QNXCNIMM75WGmjYTNxXs';
-const SHEET_NAME = 'Presensi'; // Nama sheet tempat data presensi disimpan
+const SHEET_NAME = 'Presensi';
 
-// Header kolom pada sheet (urutan harus konsisten)
 const HEADERS = [
   'Timestamp',
   'Tanggal Presensi',
@@ -65,21 +55,15 @@ const DAFTAR_SISWA = [
   { nis: '5475', nama: 'Yulisa Suriale' }
 ];
 
-// ============== ENTRY POINT API (HEADLESS) ==============
+// ============== ENTRY POINT API ==============
 
-/**
- * doGet() - dipakai untuk cek API hidup (health check) DAN untuk
- * menerima action via query string (?action=...), supaya frontend
- * yang tidak mengirim POST (misalnya saat debugging via browser)
- * tetap bisa mendapat respon JSON yang masuk akal.
- */
 function doGet(e) {
   const action = e.parameter && e.parameter.action;
 
   if (!action) {
     return jsonResponse_({
       success: true,
-      message: 'API Presensi XI AKL aktif. Gunakan POST dengan field "action".'
+      message: 'API Presensi XI AKL aktif v2. Gunakan POST dengan field "action".'
     });
   }
 
@@ -93,11 +77,6 @@ function doGet(e) {
   return jsonResponse_({ success: false, message: 'Action tidak dikenali untuk GET: ' + action });
 }
 
-/**
- * doPost() - entry point utama yang dipanggil dari frontend GitHub
- * Pages lewat fetch(). Body request berupa JSON:
- *   { "action": "submitAttendance", "payload": { ... } }
- */
 function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents || '{}');
@@ -110,7 +89,12 @@ function doPost(e) {
         result = { success: true, data: getStudentList() };
         break;
       case 'submitAttendance':
-        result = submitAttendance(payload);
+        // Kompatibilitas lama — bungkus jadi bulk 1 item
+        result = submitBulkAttendance([payload]);
+        break;
+      case 'submitBulkAttendance':
+        // NEW: terima array records
+        result = submitBulkAttendance(payload);
         break;
       case 'getSummaryData':
         result = getSummaryData();
@@ -125,24 +109,12 @@ function doPost(e) {
   }
 }
 
-/**
- * Helper: membungkus data jadi JSON response.
- * Catatan: Apps Script Web App secara native MENGIZINKAN akses
- * cross-origin (CORS) untuk response JSON biasa ContentService —
- * tidak perlu header Access-Control-Allow-Origin manual, karena
- * Apps Script tidak mengizinkan set header response secara manual.
- * Yang membuat ini bekerja lintas-domain adalah deployment dengan
- * akses "Anyone" (lihat petunjuk deploy).
- */
 function jsonResponse_(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-/**
- * Helper: Mengambil objek Sheet, membuat sheet & header jika belum ada.
- */
 function getSheet_() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = ss.getSheetByName(SHEET_NAME);
@@ -160,53 +132,76 @@ function getSheet_() {
   return sheet;
 }
 
-/**
- * Mengirim daftar siswa ke frontend (untuk mengisi dropdown).
- */
 function getStudentList() {
   return DAFTAR_SISWA;
 }
 
 /**
- * Menyimpan data presensi yang dikirim dari form.
- * @param {Object} data - { tanggal, nama, nis, status, semester, pertemuan }
- * @return {Object} status hasil penyimpanan
+ * [LAMA] Simpan satu record presensi.
+ * Masih bisa dipanggil internal, tapi dari frontend sudah pakai bulk.
  */
 function submitAttendance(data) {
+  return submitBulkAttendance([data]);
+}
+
+/**
+ * [BARU] Simpan banyak record presensi sekaligus (seluruh kelas).
+ * @param {Array} records - Array of { tanggal, nama, nis, status, semester, pertemuan }
+ * @return {Object} { success, saved, failed, message }
+ */
+function submitBulkAttendance(records) {
   try {
-    if (!data || !data.tanggal || !data.nis || !data.nama || !data.status || !data.semester) {
-      throw new Error('Data tidak lengkap. Pastikan semua field telah diisi.');
+    if (!Array.isArray(records) || records.length === 0) {
+      throw new Error('Data presensi kosong atau format tidak valid.');
     }
 
     const sheet = getSheet_();
     const timestamp = new Date();
+    const rows = [];
+    const errors = [];
 
-    sheet.appendRow([
-      timestamp,
-      data.tanggal,
-      data.nama,
-      data.nis,
-      data.status,
-      data.semester,
-      data.pertemuan || ''
-    ]);
+    records.forEach(function (data, idx) {
+      if (!data || !data.tanggal || !data.nis || !data.nama || !data.status || !data.semester) {
+        errors.push('Baris #' + (idx + 1) + ' (' + (data && data.nama || 'Unknown') + '): data tidak lengkap.');
+        return;
+      }
+      rows.push([
+        timestamp,
+        data.tanggal,
+        data.nama,
+        data.nis,
+        data.status,
+        data.semester,
+        data.pertemuan || ''
+      ]);
+    });
+
+    if (rows.length > 0) {
+      // appendRow batch — lebih efisien
+      rows.forEach(function (row) {
+        sheet.appendRow(row);
+      });
+    }
 
     return {
       success: true,
-      message: 'Presensi untuk ' + data.nama + ' berhasil disimpan.'
+      saved: rows.length,
+      failed: errors.length,
+      message: rows.length + ' data presensi berhasil disimpan.' +
+        (errors.length > 0 ? ' ' + errors.length + ' gagal: ' + errors.join('; ') : '')
     };
   } catch (err) {
     return {
       success: false,
+      saved: 0,
+      failed: records ? records.length : 0,
       message: 'Gagal menyimpan presensi: ' + err.message
     };
   }
 }
 
 /**
- * Mengambil seluruh data presensi dari sheet dan mengolahnya
- * menjadi rekapan bulanan dan rekapan per semester.
- * @return {Object} { monthly: {...}, semester: {...}, raw: [...] }
+ * Rekap bulanan & semester dari seluruh data sheet.
  */
 function getSummaryData() {
   try {
@@ -225,7 +220,7 @@ function getSummaryData() {
     const range = sheet.getRange(2, 1, lastRow - 1, HEADERS.length);
     const values = range.getValues();
 
-    const monthly = {}; // { "2026-07": { Hadir: n, Sakit: n, Izin: n, Alpa: n } }
+    const monthly = {};
     const semester = {
       Ganjil: emptyStatusCount_(),
       Genap: emptyStatusCount_()
@@ -254,22 +249,15 @@ function getSummaryData() {
       } else {
         tanggalObj = new Date(tanggalRaw);
       }
-
       if (isNaN(tanggalObj.getTime())) return;
 
       const year = tanggalObj.getFullYear();
-      const monthIdx = tanggalObj.getMonth(); // 0-11
+      const monthIdx = tanggalObj.getMonth();
       const monthKey = year + '-' + String(monthIdx + 1).padStart(2, '0');
       const monthLabel = monthNames[monthIdx] + ' ' + year;
 
       if (!monthly[monthKey]) {
-        monthly[monthKey] = {
-          label: monthLabel,
-          Hadir: 0,
-          Sakit: 0,
-          Izin: 0,
-          Alpa: 0
-        };
+        monthly[monthKey] = { label: monthLabel, Hadir: 0, Sakit: 0, Izin: 0, Alpa: 0 };
       }
       if (monthly[monthKey].hasOwnProperty(status)) {
         monthly[monthKey][status]++;
@@ -291,18 +279,15 @@ function getSummaryData() {
       });
     });
 
-    // Urutkan monthly berdasarkan key (kronologis)
     const sortedMonthlyKeys = Object.keys(monthly).sort();
     const sortedMonthly = {};
-    sortedMonthlyKeys.forEach(function (k) {
-      sortedMonthly[k] = monthly[k];
-    });
+    sortedMonthlyKeys.forEach(function (k) { sortedMonthly[k] = monthly[k]; });
 
     return {
       success: true,
       monthly: sortedMonthly,
       semester: semester,
-      raw: raw.reverse() // data terbaru di atas
+      raw: raw.reverse()
     };
   } catch (err) {
     return {
@@ -312,9 +297,6 @@ function getSummaryData() {
   }
 }
 
-/**
- * Helper: objek kosong untuk hitungan status kehadiran.
- */
 function emptyStatusCount_() {
   return { Hadir: 0, Sakit: 0, Izin: 0, Alpa: 0 };
 }
