@@ -4,299 +4,292 @@
  * Tahun Pelajaran 2026/2027
  * Guru Pengampu: Alowisyus Bahy, S.Pd., M.Pd
  *
- * File: code.gs (Backend API - Google Apps Script)
- *
- * PERUBAHAN v2:
- * - submitAttendance (satu siswa) -> submitBulkAttendance (seluruh kelas sekaligus)
- * - submitAttendance lama tetap dipertahankan untuk kompatibilitas
+ * File: code.gs  (Backend API - Google Apps Script)
+ * Versi 3 — daftar siswa dinamis (sheet "Siswa"), tambah & hapus siswa
  **********************************************************************/
 
 // ============== KONFIGURASI ==============
-const SPREADSHEET_ID = '1_Y-WhaGPLhakGdeE7F8Hqt-QNXCNIMM75WGmjYTNxXs';
-const SHEET_NAME = 'Presensi';
+const SPREADSHEET_ID  = '1_Y-WhaGPLhakGdeE7F8Hqt-QNXCNIMM75WGmjYTNxXs';
+const SHEET_PRESENSI  = 'Presensi';
+const SHEET_SISWA     = 'Siswa';        // sheet baru untuk master data siswa
 
-const HEADERS = [
-  'Timestamp',
-  'Tanggal Presensi',
-  'Nama Siswa',
-  'NIS',
-  'Status',
-  'Semester',
-  'Pertemuan Ke-'
+const HEADERS_PRESENSI = [
+  'Timestamp', 'Tanggal Presensi', 'Nama Siswa', 'NIS', 'Status', 'Semester', 'Pertemuan Ke-'
 ];
+const HEADERS_SISWA = ['NIS', 'Nama'];  // header sheet Siswa
+
+// Seed awal — hanya dipakai saat sheet Siswa belum ada / masih kosong
+const SEED_SISWA = [
+  ['5453','Ceska Silaya'],
+  ['5454','Christian Mirlau'],
+  ['5455','Cindy Grisel De Lima'],
+  ['5456','Dhea Nel Lessil'],
+  ['5457','Erli Ervyna Marlissa'],
+  ['5458','Fidela Latuny'],
+  ['5459','Julis P Kainama'],
+  ['5460','Maria Defrosa Betaubun'],
+  ['5461','Marisa D. G. Lasamahu'],
+  ['5462','Melinda Wattimury'],
+  ['5463','Melisa Wattimury'],
+  ['5464','Nerges Wattimury'],
+  ['5465','Nursita R Ibrahim'],
+  ['5466','Patresia Agustina Tuasuun'],
+  ['5467','Riska Amelia Putri Pattiasina'],
+  ['5468','Safira Lefina Ngutra'],
+  ['5469','Sarah Chezia Tuapetel'],
+  ['5470','Sariati Ode'],
+  ['5471','Valen Boby Wattimury'],
+  ['5472','Wa Nurbaya'],
+  ['5473','Wa Puput'],
+  ['5474','Yulia Telussa'],
+  ['5475','Yulisa Suriale']
+];
+
+// ============== SHEET HELPERS ==============
+
+function getPresensiSheet_() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sh = ss.getSheetByName(SHEET_PRESENSI);
+  if (!sh) { sh = ss.insertSheet(SHEET_PRESENSI); }
+  if (sh.getLastRow() === 0) {
+    sh.appendRow(HEADERS_PRESENSI);
+    sh.getRange(1, 1, 1, HEADERS_PRESENSI.length)
+      .setFontWeight('bold').setBackground('#1a237e').setFontColor('#ffffff');
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
 
 /**
- * Daftar 23 siswa Kelas XI AKL - SMK Negeri 1 Maluku Tengah
- * Tahun Pelajaran 2026/2027 (data resmi).
+ * Ambil / buat sheet Siswa.
+ * Jika baru dibuat, isi dengan data seed supaya tidak kosong.
  */
-const DAFTAR_SISWA = [
-  { nis: '5453', nama: 'Ceska Silaya' },
-  { nis: '5454', nama: 'Christian Mirlau' },
-  { nis: '5455', nama: 'Cindy Grisel De Lima' },
-  { nis: '5456', nama: 'Dhea Nel Lessil' },
-  { nis: '5457', nama: 'Erli Ervyna Marlissa' },
-  { nis: '5458', nama: 'Fidela Latuny' },
-  { nis: '5459', nama: 'Julis P Kainama' },
-  { nis: '5460', nama: 'Maria Defrosa Betaubun' },
-  { nis: '5461', nama: 'Marisa D. G. Lasamahu' },
-  { nis: '5462', nama: 'Melinda Wattimury' },
-  { nis: '5463', nama: 'Melisa Wattimury' },
-  { nis: '5464', nama: 'Nerges Wattimury' },
-  { nis: '5465', nama: 'Nursita R Ibrahim' },
-  { nis: '5466', nama: 'Patresia Agustina Tuasuun' },
-  { nis: '5467', nama: 'Riska Amelia Putri Pattiasina' },
-  { nis: '5468', nama: 'Safira Lefina Ngutra' },
-  { nis: '5469', nama: 'Sarah Chezia Tuapetel' },
-  { nis: '5470', nama: 'Sariati Ode' },
-  { nis: '5471', nama: 'Valen Boby Wattimury' },
-  { nis: '5472', nama: 'Wa Nurbaya' },
-  { nis: '5473', nama: 'Wa Puput' },
-  { nis: '5474', nama: 'Yulia Telussa' },
-  { nis: '5475', nama: 'Yulisa Suriale' }
-];
+function getSiswaSheet_() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sh = ss.getSheetByName(SHEET_SISWA);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_SISWA);
+    sh.appendRow(HEADERS_SISWA);
+    sh.getRange(1, 1, 1, HEADERS_SISWA.length)
+      .setFontWeight('bold').setBackground('#1a237e').setFontColor('#ffffff');
+    sh.setFrozenRows(1);
+    // Seed data awal
+    if (SEED_SISWA.length > 0) {
+      sh.getRange(2, 1, SEED_SISWA.length, 2).setValues(SEED_SISWA);
+    }
+  } else if (sh.getLastRow() <= 1) {
+    // Ada sheet tapi kosong — isi seed
+    if (SEED_SISWA.length > 0) {
+      sh.getRange(2, 1, SEED_SISWA.length, 2).setValues(SEED_SISWA);
+    }
+  }
+  return sh;
+}
 
-// ============== ENTRY POINT API ==============
+// ============== JSON RESPONSE ==============
+function jsonResponse_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ============== ENTRY POINTS ==============
 
 function doGet(e) {
   const action = e.parameter && e.parameter.action;
+  if (!action) return jsonResponse_({ success: true, message: 'API Presensi XI AKL v3 aktif.' });
 
-  if (!action) {
-    return jsonResponse_({
-      success: true,
-      message: 'API Presensi XI AKL aktif v2. Gunakan POST dengan field "action".'
-    });
-  }
+  if (action === 'getStudentList') return jsonResponse_({ success: true, data: getStudentList() });
+  if (action === 'getSummaryData') return jsonResponse_(getSummaryData());
 
-  if (action === 'getStudentList') {
-    return jsonResponse_({ success: true, data: getStudentList() });
-  }
-  if (action === 'getSummaryData') {
-    return jsonResponse_(getSummaryData());
-  }
-
-  return jsonResponse_({ success: false, message: 'Action tidak dikenali untuk GET: ' + action });
+  return jsonResponse_({ success: false, message: 'Action tidak dikenali: ' + action });
 }
 
 function doPost(e) {
   try {
-    const body = JSON.parse(e.postData.contents || '{}');
-    const action = body.action;
+    const body    = JSON.parse(e.postData.contents || '{}');
+    const action  = body.action;
     const payload = body.payload || {};
 
     let result;
     switch (action) {
-      case 'getStudentList':
-        result = { success: true, data: getStudentList() };
-        break;
-      case 'submitAttendance':
-        // Kompatibilitas lama — bungkus jadi bulk 1 item
-        result = submitBulkAttendance([payload]);
-        break;
-      case 'submitBulkAttendance':
-        // NEW: terima array records
-        result = submitBulkAttendance(payload);
-        break;
-      case 'getSummaryData':
-        result = getSummaryData();
-        break;
-      default:
-        result = { success: false, message: 'Action tidak dikenali: ' + action };
+      case 'getStudentList':       result = { success: true, data: getStudentList() }; break;
+      case 'submitAttendance':     result = submitBulkAttendance([payload]);           break;
+      case 'submitBulkAttendance': result = submitBulkAttendance(payload);             break;
+      case 'getSummaryData':       result = getSummaryData();                          break;
+      case 'addStudent':           result = addStudent(payload);                       break;
+      case 'deleteStudent':        result = deleteStudent(payload);                    break;
+      default: result = { success: false, message: 'Action tidak dikenali: ' + action };
     }
-
     return jsonResponse_(result);
   } catch (err) {
-    return jsonResponse_({ success: false, message: 'Gagal memproses request: ' + err.message });
+    return jsonResponse_({ success: false, message: 'Error: ' + err.message });
   }
 }
 
-function jsonResponse_(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}
+// ============== STUDENT CRUD ==============
 
-function getSheet_() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
-  }
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(HEADERS);
-    sheet.getRange(1, 1, 1, HEADERS.length)
-      .setFontWeight('bold')
-      .setBackground('#1a237e')
-      .setFontColor('#ffffff');
-    sheet.setFrozenRows(1);
-  }
-  return sheet;
-}
-
+/**
+ * Baca daftar siswa dari sheet Siswa, urutkan berdasarkan nama.
+ */
 function getStudentList() {
-  return DAFTAR_SISWA;
+  const sh      = getSiswaSheet_();
+  const lastRow = sh.getLastRow();
+  if (lastRow < 2) return [];
+
+  const values = sh.getRange(2, 1, lastRow - 1, 2).getValues();
+  const list = [];
+  values.forEach(function (row) {
+    const nis  = String(row[0]).trim();
+    const nama = String(row[1]).trim();
+    if (nis && nama) list.push({ nis: nis, nama: nama });
+  });
+  list.sort(function (a, b) { return a.nama.localeCompare(b.nama, 'id'); });
+  return list;
 }
 
 /**
- * [LAMA] Simpan satu record presensi.
- * Masih bisa dipanggil internal, tapi dari frontend sudah pakai bulk.
+ * Tambah satu siswa baru.
+ * payload: { nis, nama }
  */
-function submitAttendance(data) {
-  return submitBulkAttendance([data]);
+function addStudent(payload) {
+  try {
+    const nis  = String(payload.nis  || '').trim();
+    const nama = String(payload.nama || '').trim();
+
+    if (!nis)  throw new Error('NIS tidak boleh kosong.');
+    if (!nama) throw new Error('Nama tidak boleh kosong.');
+
+    const sh      = getSiswaSheet_();
+    const lastRow = sh.getLastRow();
+
+    // Cek duplikat NIS
+    if (lastRow >= 2) {
+      const existing = sh.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (var i = 0; i < existing.length; i++) {
+        if (String(existing[i][0]).trim() === nis) {
+          throw new Error('NIS ' + nis + ' sudah terdaftar.');
+        }
+      }
+    }
+
+    sh.appendRow([nis, nama]);
+    return { success: true, message: nama + ' (NIS: ' + nis + ') berhasil ditambahkan.' };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
 }
 
 /**
- * [BARU] Simpan banyak record presensi sekaligus (seluruh kelas).
- * @param {Array} records - Array of { tanggal, nama, nis, status, semester, pertemuan }
- * @return {Object} { success, saved, failed, message }
+ * Hapus siswa berdasarkan NIS.
+ * payload: { nis }
  */
+function deleteStudent(payload) {
+  try {
+    const nis = String(payload.nis || '').trim();
+    if (!nis) throw new Error('NIS tidak boleh kosong.');
+
+    const sh      = getSiswaSheet_();
+    const lastRow = sh.getLastRow();
+    if (lastRow < 2) throw new Error('Daftar siswa kosong.');
+
+    const values = sh.getRange(2, 1, lastRow - 1, 1).getValues();
+    let deletedRow = -1;
+    for (var i = 0; i < values.length; i++) {
+      if (String(values[i][0]).trim() === nis) {
+        deletedRow = i + 2; // +2 karena baris 1 adalah header
+        break;
+      }
+    }
+
+    if (deletedRow === -1) throw new Error('Siswa dengan NIS ' + nis + ' tidak ditemukan.');
+
+    sh.deleteRow(deletedRow);
+    return { success: true, message: 'Siswa dengan NIS ' + nis + ' berhasil dihapus.' };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+}
+
+// ============== PRESENSI ==============
+
 function submitBulkAttendance(records) {
   try {
     if (!Array.isArray(records) || records.length === 0) {
       throw new Error('Data presensi kosong atau format tidak valid.');
     }
-
-    const sheet = getSheet_();
+    const sh        = getPresensiSheet_();
     const timestamp = new Date();
-    const rows = [];
-    const errors = [];
+    const rows      = [];
+    const errors    = [];
 
     records.forEach(function (data, idx) {
       if (!data || !data.tanggal || !data.nis || !data.nama || !data.status || !data.semester) {
-        errors.push('Baris #' + (idx + 1) + ' (' + (data && data.nama || 'Unknown') + '): data tidak lengkap.');
+        errors.push('Baris #' + (idx + 1) + ': data tidak lengkap.');
         return;
       }
-      rows.push([
-        timestamp,
-        data.tanggal,
-        data.nama,
-        data.nis,
-        data.status,
-        data.semester,
-        data.pertemuan || ''
-      ]);
+      rows.push([timestamp, data.tanggal, data.nama, data.nis, data.status, data.semester, data.pertemuan || '']);
     });
 
-    if (rows.length > 0) {
-      // appendRow batch — lebih efisien
-      rows.forEach(function (row) {
-        sheet.appendRow(row);
-      });
-    }
+    rows.forEach(function (row) { sh.appendRow(row); });
 
     return {
-      success: true,
-      saved: rows.length,
-      failed: errors.length,
-      message: rows.length + ' data presensi berhasil disimpan.' +
-        (errors.length > 0 ? ' ' + errors.length + ' gagal: ' + errors.join('; ') : '')
+      success: true, saved: rows.length, failed: errors.length,
+      message: rows.length + ' presensi berhasil disimpan.'
+        + (errors.length > 0 ? ' ' + errors.length + ' gagal.' : '')
     };
   } catch (err) {
-    return {
-      success: false,
-      saved: 0,
-      failed: records ? records.length : 0,
-      message: 'Gagal menyimpan presensi: ' + err.message
-    };
+    return { success: false, saved: 0, failed: 0, message: 'Gagal: ' + err.message };
   }
 }
 
-/**
- * Rekap bulanan & semester dari seluruh data sheet.
- */
+// ============== REKAP ==============
+
 function getSummaryData() {
   try {
-    const sheet = getSheet_();
-    const lastRow = sheet.getLastRow();
+    const sh      = getPresensiSheet_();
+    const lastRow = sh.getLastRow();
 
     if (lastRow < 2) {
-      return {
-        success: true,
-        monthly: {},
-        semester: { Ganjil: emptyStatusCount_(), Genap: emptyStatusCount_() },
-        raw: []
-      };
+      return { success: true, monthly: {}, semester: { Ganjil: empty_(), Genap: empty_() }, raw: [] };
     }
 
-    const range = sheet.getRange(2, 1, lastRow - 1, HEADERS.length);
-    const values = range.getValues();
-
-    const monthly = {};
-    const semester = {
-      Ganjil: emptyStatusCount_(),
-      Genap: emptyStatusCount_()
-    };
-
-    const monthNames = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
-
+    const values    = sh.getRange(2, 1, lastRow - 1, HEADERS_PRESENSI.length).getValues();
+    const monthly   = {};
+    const semester  = { Ganjil: empty_(), Genap: empty_() };
+    const monthNames = ['Januari','Februari','Maret','April','Mei','Juni',
+                        'Juli','Agustus','September','Oktober','November','Desember'];
     const raw = [];
 
     values.forEach(function (row) {
-      const tanggalRaw = row[1];
-      const nama = row[2];
-      const nis = row[3];
-      const status = row[4];
-      const semesterVal = row[5];
-      const pertemuan = row[6];
-
+      const tanggalRaw = row[1], nama = row[2], nis = row[3],
+            status = row[4], semVal = row[5], pertemuan = row[6];
       if (!tanggalRaw || !status) return;
 
-      let tanggalObj;
-      if (tanggalRaw instanceof Date) {
-        tanggalObj = tanggalRaw;
-      } else {
-        tanggalObj = new Date(tanggalRaw);
-      }
-      if (isNaN(tanggalObj.getTime())) return;
+      const d = tanggalRaw instanceof Date ? tanggalRaw : new Date(tanggalRaw);
+      if (isNaN(d.getTime())) return;
 
-      const year = tanggalObj.getFullYear();
-      const monthIdx = tanggalObj.getMonth();
-      const monthKey = year + '-' + String(monthIdx + 1).padStart(2, '0');
-      const monthLabel = monthNames[monthIdx] + ' ' + year;
+      const y = d.getFullYear(), m = d.getMonth();
+      const key = y + '-' + String(m + 1).padStart(2, '0');
+      if (!monthly[key]) monthly[key] = { label: monthNames[m] + ' ' + y, Hadir:0, Sakit:0, Izin:0, Alpa:0 };
+      if (monthly[key].hasOwnProperty(status)) monthly[key][status]++;
 
-      if (!monthly[monthKey]) {
-        monthly[monthKey] = { label: monthLabel, Hadir: 0, Sakit: 0, Izin: 0, Alpa: 0 };
-      }
-      if (monthly[monthKey].hasOwnProperty(status)) {
-        monthly[monthKey][status]++;
-      }
-
-      if (semesterVal === 'Ganjil' || semesterVal === 'Genap') {
-        if (semester[semesterVal].hasOwnProperty(status)) {
-          semester[semesterVal][status]++;
-        }
+      if ((semVal === 'Ganjil' || semVal === 'Genap') && semester[semVal].hasOwnProperty(status)) {
+        semester[semVal][status]++;
       }
 
       raw.push({
-        tanggal: Utilities.formatDate(tanggalObj, Session.getScriptTimeZone(), 'yyyy-MM-dd'),
-        nama: nama,
-        nis: nis,
-        status: status,
-        semester: semesterVal,
-        pertemuan: pertemuan
+        tanggal: Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd'),
+        nama: nama, nis: nis, status: status, semester: semVal, pertemuan: pertemuan
       });
     });
 
-    const sortedMonthlyKeys = Object.keys(monthly).sort();
-    const sortedMonthly = {};
-    sortedMonthlyKeys.forEach(function (k) { sortedMonthly[k] = monthly[k]; });
+    const sorted = {};
+    Object.keys(monthly).sort().forEach(function (k) { sorted[k] = monthly[k]; });
 
-    return {
-      success: true,
-      monthly: sortedMonthly,
-      semester: semester,
-      raw: raw.reverse()
-    };
+    return { success: true, monthly: sorted, semester: semester, raw: raw.reverse() };
   } catch (err) {
-    return {
-      success: false,
-      message: 'Gagal mengambil data rekapitulasi: ' + err.message
-    };
+    return { success: false, message: 'Gagal rekap: ' + err.message };
   }
 }
 
-function emptyStatusCount_() {
-  return { Hadir: 0, Sakit: 0, Izin: 0, Alpa: 0 };
-}
+function empty_() { return { Hadir: 0, Sakit: 0, Izin: 0, Alpa: 0 }; }

@@ -4,264 +4,264 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Presensi XI AKL - SMK Negeri 1 Maluku Tengah</title>
-
-<!-- Bootstrap 5 -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-
 <style>
-  :root {
-    --midnight: #0f1c3f;
-    --royal: #2541b2;
-    --royal-light: #4361ee;
-    --accent: #00d4ff;
-    --glass-bg: rgba(255, 255, 255, 0.10);
-    --glass-border: rgba(255, 255, 255, 0.22);
-    --c-hadir: #16d191;
-    --c-sakit: #ffb648;
-    --c-izin: #4cc9f0;
-    --c-alpa: #ff5d8f;
-  }
+:root {
+  --midnight:#0f1c3f; --royal:#2541b2; --royal-light:#4361ee; --accent:#00d4ff;
+  --glass-bg:rgba(255,255,255,.10); --glass-border:rgba(255,255,255,.22);
+  --c-hadir:#16d191; --c-sakit:#ffb648; --c-izin:#4cc9f0; --c-alpa:#ff5d8f;
+}
+*{box-sizing:border-box}
+body{
+  min-height:100vh;margin:0;
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:linear-gradient(135deg,var(--midnight) 0%,var(--royal) 55%,var(--royal-light) 100%);
+  background-attachment:fixed;color:#fff;padding-bottom:40px;
+}
+body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);z-index:0;opacity:.35;}
+body::before{width:380px;height:380px;background:var(--accent);top:-100px;left:-100px;}
+body::after{width:420px;height:420px;background:#7b2ff7;bottom:-120px;right:-100px;}
 
-  * { box-sizing: border-box; }
+/* header */
+.app-header{position:relative;z-index:1;text-align:center;padding:32px 16px 18px;}
+.logo-circle{
+  width:64px;height:64px;border-radius:50%;
+  background:rgba(255,255,255,.15);border:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 12px;font-size:28px;
+}
+.app-header h1{font-weight:700;font-size:1.6rem;margin-bottom:4px;}
+.app-header p{margin:0;opacity:.85;font-size:.95rem;}
+.share-link-wrap{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.btn-share{
+  background:rgba(255,255,255,.12);border:1px solid var(--glass-border);color:#fff;
+  border-radius:30px;padding:9px 16px;font-size:.82rem;font-weight:600;
+  backdrop-filter:blur(6px);transition:all .2s;display:inline-flex;align-items:center;gap:6px;min-height:40px;
+}
+.btn-share:hover{background:rgba(255,255,255,.22);transform:translateY(-1px);}
 
-  body {
-    min-height: 100vh;
-    margin: 0;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: linear-gradient(135deg, var(--midnight) 0%, var(--royal) 55%, var(--royal-light) 100%);
-    background-attachment: fixed;
-    color: #fff;
-    padding-bottom: 40px;
-  }
-  body::before, body::after {
-    content: '';
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(80px);
-    z-index: 0;
-    opacity: 0.35;
-  }
-  body::before { width: 380px; height: 380px; background: var(--accent); top: -100px; left: -100px; }
-  body::after  { width: 420px; height: 420px; background: #7b2ff7; bottom: -120px; right: -100px; }
+/* layout */
+.container-app{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 16px;}
+.glass-card{
+  background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:20px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  box-shadow:0 8px 32px rgba(0,0,0,.25);padding:26px;margin-bottom:24px;
+}
+.glass-card h2,.glass-card h5{color:#fff;}
+.section-title{display:flex;align-items:center;gap:10px;font-weight:600;font-size:1.1rem;margin-bottom:18px;}
+.section-title i{color:var(--accent);font-size:1.3rem;}
 
-  /* ── Header ── */
-  .app-header {
-    position: relative; z-index: 1;
-    text-align: center;
-    padding: 32px 16px 18px;
-  }
-  .app-header .logo-circle {
-    width: 64px; height: 64px; border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid var(--glass-border);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 12px; font-size: 28px;
-  }
-  .app-header h1 { font-weight: 700; font-size: 1.6rem; margin-bottom: 4px; letter-spacing: 0.3px; }
-  .app-header p  { margin: 0; opacity: .85; font-size: .95rem; }
-  .share-link-wrap { display: flex; justify-content: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
-  .btn-share {
-    background: rgba(255,255,255,.12); border: 1px solid var(--glass-border); color: #fff;
-    border-radius: 30px; padding: 9px 16px; font-size: .82rem; font-weight: 600;
-    backdrop-filter: blur(6px); transition: all .2s; display: inline-flex; align-items: center; gap: 6px; min-height: 40px;
-  }
-  .btn-share:hover { background: rgba(255,255,255,.22); transform: translateY(-1px); }
+/* tabs */
+.nav-pills-glass{
+  background:rgba(255,255,255,.08);border-radius:14px;padding:6px;margin-bottom:22px;
+  display:flex;gap:4px;flex-wrap:wrap;
+}
+.nav-pills-glass .nav-link{
+  flex:1;color:rgba(255,255,255,.75);border-radius:10px;font-weight:500;font-size:.88rem;
+  padding:10px 8px;text-align:center;transition:all .25s;min-width:60px;
+}
+.nav-pills-glass .nav-link.active{
+  background:linear-gradient(135deg,var(--accent),var(--royal-light));
+  color:#04102b;box-shadow:0 4px 14px rgba(0,212,255,.35);
+}
 
-  /* ── Container & Card ── */
-  .container-app { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 0 16px; }
-  .glass-card {
-    background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px;
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 8px 32px rgba(0,0,0,.25); padding: 26px; margin-bottom: 24px;
-  }
-  .glass-card h2, .glass-card h5 { color: #fff; }
-  .section-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 1.1rem; margin-bottom: 18px; }
-  .section-title i { color: var(--accent); font-size: 1.3rem; }
+/* forms */
+.form-label{color:rgba(255,255,255,.9);font-weight:500;font-size:.9rem;}
+.form-control,.form-select{
+  background:rgba(255,255,255,.9);border:none;border-radius:12px;
+  padding:11px 14px;color:#1a1a2e;
+}
+.form-control:focus,.form-select:focus{box-shadow:0 0 0 3px rgba(0,212,255,.45);}
 
-  /* ── Nav Tabs ── */
-  .nav-pills-glass {
-    background: rgba(255,255,255,.08); border-radius: 14px; padding: 6px; margin-bottom: 22px;
-    display: flex; gap: 4px;
-  }
-  .nav-pills-glass .nav-link {
-    flex: 1; color: rgba(255,255,255,.75); border-radius: 10px; font-weight: 500; font-size: .92rem;
-    padding: 10px 8px; text-align: center; transition: all .25s;
-  }
-  .nav-pills-glass .nav-link.active {
-    background: linear-gradient(135deg, var(--accent), var(--royal-light));
-    color: #04102b; box-shadow: 0 4px 14px rgba(0,212,255,.35);
-  }
+/* semester pills */
+.semester-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.semester-options input[type="radio"]{display:none;}
+.semester-options label{
+  display:block;text-align:center;padding:11px;border-radius:12px;
+  background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);
+  cursor:pointer;font-weight:600;font-size:.9rem;transition:all .2s;color:#fff;
+}
+.semester-options input:checked+label{
+  background:linear-gradient(135deg,var(--royal-light),var(--accent));
+  border-color:var(--accent);box-shadow:0 4px 14px rgba(67,97,238,.4);
+}
 
-  /* ── Form Controls ── */
-  .form-label { color: rgba(255,255,255,.9); font-weight: 500; font-size: .9rem; }
-  .form-control, .form-select {
-    background: rgba(255,255,255,.9); border: none; border-radius: 12px;
-    padding: 11px 14px; color: #1a1a2e;
-  }
-  .form-control:focus, .form-select:focus { box-shadow: 0 0 0 3px rgba(0,212,255,.45); }
+/* quick-set */
+.quickset-bar{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  background:rgba(255,255,255,.07);border:1px solid var(--glass-border);
+  border-radius:14px;padding:12px 16px;margin-bottom:16px;
+}
+.quickset-label{font-size:.82rem;font-weight:600;opacity:.8;margin-right:4px;}
+.quickset-btn{
+  border:1.5px solid;border-radius:20px;padding:5px 14px;font-size:.8rem;font-weight:700;
+  cursor:pointer;transition:all .18s;background:transparent;color:#fff;
+}
+.quickset-btn[data-q="Hadir"]{border-color:var(--c-hadir);}
+.quickset-btn[data-q="Sakit"]{border-color:var(--c-sakit);}
+.quickset-btn[data-q="Izin"] {border-color:var(--c-izin);}
+.quickset-btn[data-q="Alpa"] {border-color:var(--c-alpa);}
+.quickset-btn[data-q="Hadir"]:hover{background:var(--c-hadir);color:#04102b;}
+.quickset-btn[data-q="Sakit"]:hover{background:var(--c-sakit);color:#04102b;}
+.quickset-btn[data-q="Izin"]:hover {background:var(--c-izin);color:#04102b;}
+.quickset-btn[data-q="Alpa"]:hover {background:var(--c-alpa);color:#04102b;}
 
-  /* ── Semester Selector ── */
-  .semester-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .semester-options input[type="radio"] { display: none; }
-  .semester-options label {
-    display: block; text-align: center; padding: 11px; border-radius: 12px;
-    background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.2);
-    cursor: pointer; font-weight: 600; font-size: .9rem; transition: all .2s; color: #fff;
-  }
-  .semester-options input:checked + label {
-    background: linear-gradient(135deg, var(--royal-light), var(--accent));
-    border-color: var(--accent); box-shadow: 0 4px 14px rgba(67,97,238,.4);
-  }
+/* roster */
+.roster-table{width:100%;border-collapse:separate;border-spacing:0 6px;}
+.roster-table thead th{
+  font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;
+  color:rgba(255,255,255,.65);font-weight:600;padding:4px 8px;border:none;
+}
+.roster-row{background:rgba(255,255,255,.07);border-radius:12px;transition:background .15s;}
+.roster-row:hover{background:rgba(255,255,255,.12);}
+.roster-row td{padding:10px 8px;border:none;vertical-align:middle;}
+.roster-row td:first-child{border-radius:12px 0 0 12px;padding-left:14px;}
+.roster-row td:last-child{border-radius:0 12px 12px 0;padding-right:14px;}
+.no-siswa{
+  font-size:.78rem;font-weight:700;color:rgba(255,255,255,.5);
+  background:rgba(255,255,255,.05);border-radius:8px;padding:4px 8px;
+  display:inline-block;min-width:44px;text-align:center;
+}
+.nama-siswa{font-size:.9rem;font-weight:600;}
 
-  /* ── Quick-set bar ── */
-  .quickset-bar {
-    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-    background: rgba(255,255,255,.07); border: 1px solid var(--glass-border);
-    border-radius: 14px; padding: 12px 16px; margin-bottom: 16px;
-  }
-  .quickset-label { font-size: .82rem; font-weight: 600; opacity: .8; margin-right: 4px; }
-  .quickset-btn {
-    border: 1.5px solid; border-radius: 20px; padding: 5px 14px; font-size: .8rem; font-weight: 700;
-    cursor: pointer; transition: all .18s; background: transparent; color: #fff;
-  }
-  .quickset-btn[data-q="Hadir"]  { border-color: var(--c-hadir); }
-  .quickset-btn[data-q="Sakit"]  { border-color: var(--c-sakit); }
-  .quickset-btn[data-q="Izin"]   { border-color: var(--c-izin);  }
-  .quickset-btn[data-q="Alpa"]   { border-color: var(--c-alpa);  }
-  .quickset-btn[data-q="Hadir"]:hover  { background: var(--c-hadir); color: #04102b; }
-  .quickset-btn[data-q="Sakit"]:hover  { background: var(--c-sakit); color: #04102b; }
-  .quickset-btn[data-q="Izin"]:hover   { background: var(--c-izin);  color: #04102b; }
-  .quickset-btn[data-q="Alpa"]:hover   { background: var(--c-alpa);  color: #04102b; }
+/* radio pills */
+.radio-group{display:flex;gap:5px;flex-wrap:nowrap;}
+.radio-group input[type="radio"]{display:none;}
+.radio-pill{
+  padding:5px 10px;border-radius:20px;font-size:.75rem;font-weight:700;
+  border:1.5px solid rgba(255,255,255,.2);cursor:pointer;
+  background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);
+  transition:all .15s;white-space:nowrap;
+}
+.radio-group input[value="Hadir"]:checked+.radio-pill{background:var(--c-hadir);border-color:var(--c-hadir);color:#04102b;}
+.radio-group input[value="Sakit"]:checked+.radio-pill{background:var(--c-sakit);border-color:var(--c-sakit);color:#04102b;}
+.radio-group input[value="Izin"]:checked+.radio-pill {background:var(--c-izin);border-color:var(--c-izin);color:#04102b;}
+.radio-group input[value="Alpa"]:checked+.radio-pill {background:var(--c-alpa);border-color:var(--c-alpa);color:#04102b;}
 
-  /* ── Roster Table ── */
-  .roster-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
-  .roster-table thead th {
-    font-size: .75rem; text-transform: uppercase; letter-spacing: .5px;
-    color: rgba(255,255,255,.65); font-weight: 600; padding: 4px 8px; border: none;
-  }
-  .roster-row {
-    background: rgba(255,255,255,.07); border-radius: 12px; transition: background .15s;
-  }
-  .roster-row:hover { background: rgba(255,255,255,.12); }
-  .roster-row td { padding: 10px 8px; border: none; vertical-align: middle; }
-  .roster-row td:first-child { border-radius: 12px 0 0 12px; padding-left: 14px; }
-  .roster-row td:last-child  { border-radius: 0 12px 12px 0; padding-right: 14px; }
+/* counter */
+.counter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.counter-chip{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.08);border-radius:20px;padding:5px 13px;
+  font-size:.82rem;font-weight:700;
+}
+.counter-chip .dot{width:8px;height:8px;border-radius:50%;}
+.dot-h{background:var(--c-hadir);} .dot-s{background:var(--c-sakit);}
+.dot-i{background:var(--c-izin);}  .dot-a{background:var(--c-alpa);}
+.dot-u{background:rgba(255,255,255,.3);}
 
-  .no-siswa {
-    font-size: .78rem; font-weight: 700; color: rgba(255,255,255,.5);
-    background: rgba(255,255,255,.05); border-radius: 8px; padding: 4px 8px;
-    display: inline-block; min-width: 44px; text-align: center;
-  }
-  .nama-siswa { font-size: .9rem; font-weight: 600; }
+/* stat cards */
+.stat-card{background:rgba(255,255,255,.1);border:1px solid var(--glass-border);border-radius:16px;padding:16px;text-align:center;}
+.stat-card .num{font-size:1.6rem;font-weight:700;}
+.stat-card .lbl{font-size:.8rem;opacity:.8;}
+.stat-hadir .num{color:var(--c-hadir);} .stat-sakit .num{color:var(--c-sakit);}
+.stat-izin  .num{color:var(--c-izin);}  .stat-alpa  .num{color:var(--c-alpa);}
 
-  /* Radio pill group per siswa */
-  .radio-group { display: flex; gap: 5px; flex-wrap: nowrap; }
-  .radio-group input[type="radio"] { display: none; }
-  .radio-pill {
-    padding: 5px 10px; border-radius: 20px; font-size: .75rem; font-weight: 700;
-    border: 1.5px solid rgba(255,255,255,.2); cursor: pointer;
-    background: rgba(255,255,255,.06); color: rgba(255,255,255,.7);
-    transition: all .15s; white-space: nowrap;
-  }
-  .radio-group input[value="Hadir"]:checked + .radio-pill { background: var(--c-hadir); border-color: var(--c-hadir); color: #04102b; }
-  .radio-group input[value="Sakit"]:checked + .radio-pill { background: var(--c-sakit); border-color: var(--c-sakit); color: #04102b; }
-  .radio-group input[value="Izin"]:checked  + .radio-pill { background: var(--c-izin);  border-color: var(--c-izin);  color: #04102b; }
-  .radio-group input[value="Alpa"]:checked  + .radio-pill { background: var(--c-alpa);  border-color: var(--c-alpa);  color: #04102b; }
+/* rekap table */
+.table-glass{color:#fff;margin-bottom:0;}
+.table-glass thead th{
+  border-bottom:1px solid var(--glass-border);color:rgba(255,255,255,.8);
+  font-weight:600;font-size:.82rem;text-transform:uppercase;letter-spacing:.4px;
+}
+.table-glass td,.table-glass th{border-color:rgba(255,255,255,.12);vertical-align:middle;font-size:.9rem;}
+.badge-status{padding:5px 10px;border-radius:20px;font-size:.75rem;font-weight:600;}
+.badge-Hadir{background:rgba(22,209,145,.25);color:var(--c-hadir);}
+.badge-Sakit{background:rgba(255,182,72,.25);color:var(--c-sakit);}
+.badge-Izin {background:rgba(76,201,240,.25);color:var(--c-izin);}
+.badge-Alpa {background:rgba(255,93,143,.25);color:var(--c-alpa);}
 
-  /* Submit button */
-  .btn-submit {
-    background: linear-gradient(135deg, var(--accent), var(--royal-light));
-    border: none; color: #04102b; font-weight: 700; border-radius: 14px;
-    padding: 13px; font-size: 1rem; width: 100%; transition: transform .15s, box-shadow .15s;
-  }
-  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,212,255,.4); color: #04102b; }
-  .btn-submit:disabled { opacity: .6; transform: none; }
+/* ── KELOLA SISWA ── */
+.siswa-add-form{
+  background:rgba(255,255,255,.07);border:1px solid var(--glass-border);
+  border-radius:16px;padding:18px;margin-bottom:24px;
+}
+.siswa-add-form .row{align-items:flex-end;}
 
-  /* Counter bar */
-  .counter-bar {
-    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px;
-  }
-  .counter-chip {
-    display: flex; align-items: center; gap: 6px;
-    background: rgba(255,255,255,.08); border-radius: 20px; padding: 5px 13px;
-    font-size: .82rem; font-weight: 700;
-  }
-  .counter-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
-  .dot-h { background: var(--c-hadir); }
-  .dot-s { background: var(--c-sakit); }
-  .dot-i { background: var(--c-izin);  }
-  .dot-a { background: var(--c-alpa);  }
-  .dot-u { background: rgba(255,255,255,.3); }
+.siswa-list-table{width:100%;border-collapse:separate;border-spacing:0 5px;}
+.siswa-list-table thead th{
+  font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;
+  color:rgba(255,255,255,.6);font-weight:600;padding:4px 10px;border:none;
+}
+.siswa-item{background:rgba(255,255,255,.07);border-radius:11px;transition:background .15s;}
+.siswa-item:hover{background:rgba(255,255,255,.12);}
+.siswa-item td{padding:10px 10px;border:none;vertical-align:middle;}
+.siswa-item td:first-child{border-radius:11px 0 0 11px;padding-left:16px;}
+.siswa-item td:last-child{border-radius:0 11px 11px 0;padding-right:12px;text-align:right;}
+.siswa-nama{font-size:.9rem;font-weight:600;}
+.siswa-nis{font-size:.75rem;opacity:.55;}
+.btn-hapus{
+  background:rgba(255,93,143,.15);border:1.5px solid var(--c-alpa);color:var(--c-alpa);
+  border-radius:20px;padding:5px 13px;font-size:.77rem;font-weight:700;
+  cursor:pointer;transition:all .18s;
+}
+.btn-hapus:hover{background:var(--c-alpa);color:#fff;}
+.btn-add{
+  background:linear-gradient(135deg,var(--accent),var(--royal-light));
+  border:none;color:#04102b;font-weight:700;border-radius:12px;
+  padding:11px 20px;font-size:.9rem;transition:all .15s;white-space:nowrap;
+}
+.btn-add:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,212,255,.35);}
+.btn-add:disabled{opacity:.6;transform:none;}
 
-  /* Summary stats */
-  .stat-card { background: rgba(255,255,255,.1); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; text-align: center; }
-  .stat-card .num { font-size: 1.6rem; font-weight: 700; }
-  .stat-card .lbl { font-size: .8rem; opacity: .8; }
-  .stat-hadir .num { color: var(--c-hadir); }
-  .stat-sakit .num { color: var(--c-sakit); }
-  .stat-izin  .num { color: var(--c-izin);  }
-  .stat-alpa  .num { color: var(--c-alpa);  }
+.siswa-count-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.3);
+  border-radius:20px;padding:4px 13px;font-size:.82rem;font-weight:700;color:var(--accent);
+  margin-bottom:16px;
+}
 
-  /* Rekap table */
-  .table-glass { color: #fff; margin-bottom: 0; }
-  .table-glass thead th {
-    border-bottom: 1px solid var(--glass-border); color: rgba(255,255,255,.8);
-    font-weight: 600; font-size: .82rem; text-transform: uppercase; letter-spacing: .4px;
-  }
-  .table-glass td, .table-glass th { border-color: rgba(255,255,255,.12); vertical-align: middle; font-size: .9rem; }
-  .badge-status { padding: 5px 10px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
-  .badge-Hadir { background: rgba(22,209,145,.25);  color: var(--c-hadir); }
-  .badge-Sakit { background: rgba(255,182,72,.25);  color: var(--c-sakit); }
-  .badge-Izin  { background: rgba(76,201,240,.25);  color: var(--c-izin);  }
-  .badge-Alpa  { background: rgba(255,93,143,.25);  color: var(--c-alpa);  }
+/* misc */
+.btn-submit{
+  background:linear-gradient(135deg,var(--accent),var(--royal-light));
+  border:none;color:#04102b;font-weight:700;border-radius:14px;
+  padding:13px;font-size:1rem;width:100%;transition:transform .15s,box-shadow .15s;
+}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,212,255,.4);color:#04102b;}
+.btn-submit:disabled{opacity:.6;transform:none;}
+.empty-state{text-align:center;padding:30px 10px;opacity:.75;}
+.empty-state i{font-size:2.2rem;margin-bottom:8px;display:block;}
+.chart-wrap{position:relative;height:300px;}
+.footer-identity{
+  position:relative;z-index:1;text-align:center;margin-top:10px;
+  padding:22px 16px;border-top:1px solid rgba(255,255,255,.15);
+  font-size:.85rem;opacity:.85;line-height:1.7;
+}
+::-webkit-scrollbar{height:6px;width:6px;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:6px;}
 
-  .empty-state { text-align: center; padding: 30px 10px; opacity: .75; }
-  .empty-state i { font-size: 2.2rem; margin-bottom: 8px; display: block; }
-
-  .footer-identity {
-    position: relative; z-index: 1; text-align: center; margin-top: 10px;
-    padding: 22px 16px; border-top: 1px solid rgba(255,255,255,.15);
-    font-size: .85rem; opacity: .85; line-height: 1.7;
-  }
-
-  .chart-wrap { position: relative; height: 300px; }
-  ::-webkit-scrollbar { height: 6px; width: 6px; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.3); border-radius: 6px; }
-
-  @media (max-width: 768px) {
-    .container-app { padding: 0 12px; }
-    .glass-card { padding: 16px 14px; border-radius: 18px; }
-    .app-header h1 { font-size: 1.35rem; }
-    .chart-wrap { height: 240px; }
-    .nav-pills-glass .nav-link { font-size: .78rem; padding: 8px 4px; }
-    .radio-pill { padding: 5px 7px; font-size: .7rem; }
-    .roster-row td { padding: 8px 4px; }
-    .roster-row td:first-child { padding-left: 10px; }
-    .nama-siswa { font-size: .82rem; }
-  }
-  @media (max-width: 480px) {
-    .app-header { padding: 24px 12px 14px; }
-    .app-header .logo-circle { width: 54px; height: 54px; font-size: 24px; }
-    .app-header h1 { font-size: 1.15rem; }
-    .glass-card { padding: 14px 12px; }
-    .radio-group { gap: 3px; }
-    .radio-pill { padding: 4px 6px; font-size: .67rem; }
-    .quickset-bar { gap: 6px; }
-  }
-  @media (min-width: 992px) {
-    .glass-card { padding: 32px; }
-    .chart-wrap { height: 340px; }
-  }
-  @media (pointer: coarse) {
-    .radio-pill { min-height: 36px; display: flex; align-items: center; justify-content: center; }
-    .form-control, .form-select { min-height: 46px; }
-  }
+@media(max-width:768px){
+  .container-app{padding:0 12px;}
+  .glass-card{padding:16px 14px;border-radius:18px;}
+  .app-header h1{font-size:1.35rem;}
+  .chart-wrap{height:240px;}
+  .nav-pills-glass .nav-link{font-size:.75rem;padding:8px 4px;}
+  .radio-pill{padding:5px 7px;font-size:.7rem;}
+  .roster-row td{padding:8px 4px;}
+  .roster-row td:first-child{padding-left:10px;}
+  .nama-siswa{font-size:.82rem;}
+}
+@media(max-width:480px){
+  .app-header{padding:24px 12px 14px;}
+  .logo-circle{width:54px;height:54px;font-size:24px;}
+  .app-header h1{font-size:1.15rem;}
+  .glass-card{padding:14px 12px;}
+  .radio-group{gap:3px;}
+  .radio-pill{padding:4px 6px;font-size:.67rem;}
+  .nav-pills-glass{flex-wrap:wrap;}
+  .nav-pills-glass .nav-link{flex-basis:48%;}
+}
+@media(min-width:992px){
+  .glass-card{padding:32px;}
+  .chart-wrap{height:340px;}
+}
+@media(pointer:coarse){
+  .radio-pill{min-height:36px;display:flex;align-items:center;justify-content:center;}
+  .form-control,.form-select{min-height:46px;}
+  .btn-hapus{min-height:36px;}
+}
 </style>
 </head>
 <body>
@@ -277,32 +277,37 @@
 
 <div class="container-app">
 
+  <!-- TABS -->
   <ul class="nav nav-pills-glass" id="mainTabs" role="tablist">
     <li class="nav-item flex-fill" role="presentation">
-      <button class="nav-link active w-100" id="tab-input-btn" data-bs-toggle="tab" data-bs-target="#tab-input" type="button">
-        <i class="bi bi-pencil-square me-1"></i> Input Presensi
+      <button class="nav-link active w-100" data-bs-toggle="tab" data-bs-target="#tab-input" type="button">
+        <i class="bi bi-pencil-square me-1"></i>Input Presensi
       </button>
     </li>
     <li class="nav-item flex-fill" role="presentation">
       <button class="nav-link w-100" id="tab-bulanan-btn" data-bs-toggle="tab" data-bs-target="#tab-bulanan" type="button">
-        <i class="bi bi-calendar3 me-1"></i> Rekap Bulanan
+        <i class="bi bi-calendar3 me-1"></i>Rekap Bulanan
       </button>
     </li>
     <li class="nav-item flex-fill" role="presentation">
       <button class="nav-link w-100" id="tab-semester-btn" data-bs-toggle="tab" data-bs-target="#tab-semester" type="button">
-        <i class="bi bi-bar-chart-fill me-1"></i> Rekap Semester
+        <i class="bi bi-bar-chart-fill me-1"></i>Rekap Semester
+      </button>
+    </li>
+    <li class="nav-item flex-fill" role="presentation">
+      <button class="nav-link w-100" id="tab-siswa-btn" data-bs-toggle="tab" data-bs-target="#tab-siswa" type="button">
+        <i class="bi bi-people-fill me-1"></i>Kelola Siswa
       </button>
     </li>
   </ul>
 
   <div class="tab-content">
 
-    <!-- ===================== TAB 1: INPUT PRESENSI (BULK) ===================== -->
+    <!-- ====== TAB 1: INPUT PRESENSI ====== -->
     <div class="tab-pane fade show active" id="tab-input" role="tabpanel">
       <div class="glass-card">
         <div class="section-title"><i class="bi bi-clipboard2-check"></i> Input Presensi Seluruh Kelas</div>
 
-        <!-- Baris konfigurasi: tanggal + semester + pertemuan -->
         <div class="row g-3 mb-4">
           <div class="col-sm-4">
             <label class="form-label">Tanggal Presensi</label>
@@ -323,13 +328,10 @@
           </div>
           <div class="col-sm-4">
             <label class="form-label">Pertemuan Ke-</label>
-            <select class="form-select" id="pertemuan" required>
-              <!-- Diisi JS -->
-            </select>
+            <select class="form-select" id="pertemuan"></select>
           </div>
         </div>
 
-        <!-- Quick-set semua siswa sekaligus -->
         <div class="quickset-bar">
           <span class="quickset-label"><i class="bi bi-lightning-charge-fill me-1" style="color:var(--accent)"></i>Tandai Semua:</span>
           <button class="quickset-btn" data-q="Hadir" type="button">✓ Semua Hadir</button>
@@ -338,16 +340,14 @@
           <button class="quickset-btn" data-q="Alpa"  type="button">Semua Alpa</button>
         </div>
 
-        <!-- Counter realtime -->
-        <div class="counter-bar" id="counterBar">
+        <div class="counter-bar">
           <div class="counter-chip"><span class="dot dot-h"></span><span id="cntHadir">0</span> Hadir</div>
           <div class="counter-chip"><span class="dot dot-s"></span><span id="cntSakit">0</span> Sakit</div>
-          <div class="counter-chip"><span class="dot dot-i"></span><span id="cntIzin">0</span> Izin</div>
-          <div class="counter-chip"><span class="dot dot-a"></span><span id="cntAlpa">0</span> Alpa</div>
-          <div class="counter-chip"><span class="dot dot-u"></span><span id="cntBelum">23</span> Belum dipilih</div>
+          <div class="counter-chip"><span class="dot dot-i"></span><span id="cntIzin">0</span>  Izin</div>
+          <div class="counter-chip"><span class="dot dot-a"></span><span id="cntAlpa">0</span>  Alpa</div>
+          <div class="counter-chip"><span class="dot dot-u"></span><span id="cntBelum">0</span> Belum</div>
         </div>
 
-        <!-- Roster table -->
         <div class="table-responsive mb-4">
           <table class="roster-table" id="rosterTable">
             <thead>
@@ -371,7 +371,7 @@
       </div>
     </div>
 
-    <!-- ===================== TAB 2: REKAP BULANAN ===================== -->
+    <!-- ====== TAB 2: REKAP BULANAN ====== -->
     <div class="tab-pane fade" id="tab-bulanan" role="tabpanel">
       <div class="glass-card">
         <div class="section-title"><i class="bi bi-calendar3"></i> Rekapitulasi Per Bulan</div>
@@ -380,29 +380,21 @@
             <option value="">-- Pilih Bulan --</option>
           </select>
         </div>
-
         <div id="bulananStatBox" class="row g-3 mb-4" style="display:none;">
           <div class="col-6 col-md-3"><div class="stat-card stat-hadir"><div class="num" id="numHadirBulan">0</div><div class="lbl">Hadir</div></div></div>
           <div class="col-6 col-md-3"><div class="stat-card stat-sakit"><div class="num" id="numSakitBulan">0</div><div class="lbl">Sakit</div></div></div>
-          <div class="col-6 col-md-3"><div class="stat-card stat-izin"><div class="num"  id="numIzinBulan">0</div><div class="lbl">Izin</div></div></div>
+          <div class="col-6 col-md-3"><div class="stat-card stat-izin"> <div class="num" id="numIzinBulan">0</div> <div class="lbl">Izin</div></div></div>
           <div class="col-6 col-md-3"><div class="stat-card stat-alpa"><div class="num" id="numAlpaBulan">0</div><div class="lbl">Alpa</div></div></div>
         </div>
-
         <div class="chart-wrap mb-3"><canvas id="chartBulanan"></canvas></div>
-        <div id="emptyBulanan" class="empty-state">
-          <i class="bi bi-inbox"></i>Belum ada data presensi untuk ditampilkan.
-        </div>
+        <div id="emptyBulanan" class="empty-state"><i class="bi bi-inbox"></i>Belum ada data presensi.</div>
       </div>
-
       <div class="glass-card">
         <div class="section-title"><i class="bi bi-table"></i> Riwayat Presensi Terbaru</div>
         <div class="table-responsive">
           <table class="table table-glass">
             <thead>
-              <tr>
-                <th>Tanggal</th><th>Nama Siswa</th><th>NIS</th>
-                <th>Status</th><th>Semester</th><th>Pertemuan</th>
-              </tr>
+              <tr><th>Tanggal</th><th>Nama Siswa</th><th>NIS</th><th>Status</th><th>Semester</th><th>Pertemuan</th></tr>
             </thead>
             <tbody id="tabelRiwayat">
               <tr><td colspan="6" class="text-center py-4 opacity-75">Memuat data...</td></tr>
@@ -412,7 +404,7 @@
       </div>
     </div>
 
-    <!-- ===================== TAB 3: REKAP SEMESTER ===================== -->
+    <!-- ====== TAB 3: REKAP SEMESTER ====== -->
     <div class="tab-pane fade" id="tab-semester" role="tabpanel">
       <div class="glass-card">
         <div class="section-title"><i class="bi bi-bar-chart-fill"></i> Perbandingan Semester Ganjil vs Genap</div>
@@ -424,7 +416,7 @@
               <div class="row g-2">
                 <div class="col-6"><div class="stat-card stat-hadir"><div class="num" id="ganjilHadir">0</div><div class="lbl">Hadir</div></div></div>
                 <div class="col-6"><div class="stat-card stat-sakit"><div class="num" id="ganjilSakit">0</div><div class="lbl">Sakit</div></div></div>
-                <div class="col-6"><div class="stat-card stat-izin"><div class="num"  id="ganjilIzin">0</div><div class="lbl">Izin</div></div></div>
+                <div class="col-6"><div class="stat-card stat-izin"> <div class="num" id="ganjilIzin">0</div> <div class="lbl">Izin</div></div></div>
                 <div class="col-6"><div class="stat-card stat-alpa"><div class="num" id="ganjilAlpa">0</div><div class="lbl">Alpa</div></div></div>
               </div>
             </div>
@@ -435,11 +427,63 @@
               <div class="row g-2">
                 <div class="col-6"><div class="stat-card stat-hadir"><div class="num" id="genapHadir">0</div><div class="lbl">Hadir</div></div></div>
                 <div class="col-6"><div class="stat-card stat-sakit"><div class="num" id="genapSakit">0</div><div class="lbl">Sakit</div></div></div>
-                <div class="col-6"><div class="stat-card stat-izin"><div class="num"  id="genapIzin">0</div><div class="lbl">Izin</div></div></div>
+                <div class="col-6"><div class="stat-card stat-izin"> <div class="num" id="genapIzin">0</div> <div class="lbl">Izin</div></div></div>
                 <div class="col-6"><div class="stat-card stat-alpa"><div class="num" id="genapAlpa">0</div><div class="lbl">Alpa</div></div></div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== TAB 4: KELOLA SISWA ====== -->
+    <div class="tab-pane fade" id="tab-siswa" role="tabpanel">
+      <div class="glass-card">
+        <div class="section-title"><i class="bi bi-person-plus-fill"></i> Tambah Siswa Baru</div>
+        <div class="siswa-add-form">
+          <div class="row g-3">
+            <div class="col-sm-4">
+              <label class="form-label">NIS</label>
+              <input type="text" class="form-control" id="inputNIS" placeholder="Contoh: 5476" maxlength="20">
+            </div>
+            <div class="col-sm-5">
+              <label class="form-label">Nama Lengkap</label>
+              <input type="text" class="form-control" id="inputNama" placeholder="Contoh: Ahmad Fauzi" maxlength="80">
+            </div>
+            <div class="col-sm-3 d-flex align-items-end">
+              <button type="button" class="btn-add w-100" id="btnTambah">
+                <i class="bi bi-plus-circle-fill me-1"></i>Tambah
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="siswaCountBadge" class="siswa-count-badge">
+          <i class="bi bi-people-fill"></i>
+          <span id="siswaCount">0</span> siswa terdaftar
+        </div>
+
+        <div id="siswaLoadingWrap" class="text-center py-4 opacity-60">
+          <span class="spinner-border spinner-border-sm me-2"></span>Memuat daftar siswa...
+        </div>
+
+        <div class="table-responsive" id="siswaTableWrap" style="display:none;">
+          <table class="siswa-list-table">
+            <thead>
+              <tr>
+                <th style="width:36px">#</th>
+                <th>Nama Siswa</th>
+                <th style="width:80px">NIS</th>
+                <th style="width:80px"></th>
+              </tr>
+            </thead>
+            <tbody id="siswaListBody"></tbody>
+          </table>
+        </div>
+
+        <div id="siswaEmpty" class="empty-state" style="display:none;">
+          <i class="bi bi-person-x-fill"></i>
+          Belum ada siswa terdaftar. Tambah siswa menggunakan form di atas.
         </div>
       </div>
     </div>
@@ -455,92 +499,99 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
 /* ============================================================
-   KONFIGURASI
+   CONFIG
 ============================================================ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbwzBnFy9vprp7e7_o5yAuBhm_IBI7msry8EpChZM0X3esaQtBlPr-dTv9_TzvcVUo0c/exec';
-const TOTAL_PERTEMUAN = 18; // per semester
+const API_URL = 'https://script.google.com/macros/s/AKfycbxacnsOtGTSMEyDo20s7kixsVNyO5nZ1OcBeO_mvVkTRspjUAad-z22IkktMZwms8F4DA/exec';
+const TOTAL_PERTEMUAN = 18;
 
 /* ============================================================
    STATE
 ============================================================ */
-let chartBulananInstance = null;
+let chartBulananInstance  = null;
 let chartSemesterInstance = null;
-let summaryCache = null;
-let daftarSiswa = [];
+let summaryCache  = null;
+let daftarSiswa   = [];  // sumber kebenaran — selalu dari server
 
 /* ============================================================
    INIT
 ============================================================ */
 document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('tanggal').valueAsDate = new Date();
-
   populatePertemuanDropdown();
   setupShareLink();
-  loadStudentList();
+
+  // Load siswa → render roster (tab presensi)
+  loadStudentList(true);
   loadSummaryData();
 
   document.getElementById('btnSubmit').addEventListener('click', handleBulkSubmit);
+  document.getElementById('btnTambah').addEventListener('click', handleTambahSiswa);
 
-  // Quick-set buttons
-  document.querySelectorAll('.quickset-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      setAllStatus(btn.dataset.q);
+  // Enter key di form tambah siswa
+  ['inputNIS','inputNama'].forEach(function(id){
+    document.getElementById(id).addEventListener('keydown', function(e){
+      if (e.key === 'Enter') handleTambahSiswa();
     });
   });
 
-  // Re-render semester chart saat tab dibuka
-  document.getElementById('tab-bulanan-btn').addEventListener('shown.bs.tab', function () {
+  document.querySelectorAll('.quickset-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ setAllStatus(btn.dataset.q); });
+  });
+
+  document.getElementById('tab-bulanan-btn').addEventListener('shown.bs.tab', function(){
     if (summaryCache) renderBulananDetail();
   });
-  document.getElementById('tab-semester-btn').addEventListener('shown.bs.tab', function () {
+  document.getElementById('tab-semester-btn').addEventListener('shown.bs.tab', function(){
     if (summaryCache) renderSemesterChart(summaryCache.semester);
+  });
+  document.getElementById('tab-siswa-btn').addEventListener('shown.bs.tab', function(){
+    // Refresh daftar setiap kali tab dibuka
+    loadStudentList(false);
   });
 });
 
 /* ============================================================
-   DROPDOWN PERTEMUAN (1–18)
+   PERTEMUAN DROPDOWN
 ============================================================ */
-function populatePertemuanDropdown() {
+function populatePertemuanDropdown(){
   const sel = document.getElementById('pertemuan');
   sel.innerHTML = '';
-  for (let i = 1; i <= TOTAL_PERTEMUAN; i++) {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = 'Pertemuan ke-' + i;
-    sel.appendChild(opt);
+  for(let i = 1; i <= TOTAL_PERTEMUAN; i++){
+    const o = document.createElement('option');
+    o.value = i; o.textContent = 'Pertemuan ke-' + i;
+    sel.appendChild(o);
   }
 }
 
 /* ============================================================
    API HELPER
 ============================================================ */
-async function callApi(action, payload) {
-  if (!payload) {
-    const res = await fetch(API_URL + '?action=' + encodeURIComponent(action));
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
+async function callApi(action, payload){
+  if(!payload){
+    const r = await fetch(API_URL + '?action=' + encodeURIComponent(action));
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
   }
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: action, payload: payload })
+  const r = await fetch(API_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({ action, payload })
   });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
+  if(!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
 }
 
 /* ============================================================
    SHARE LINK
 ============================================================ */
-function setupShareLink() {
-  document.getElementById('btnCopyLink').addEventListener('click', function () {
-    navigator.clipboard.writeText(window.location.href).then(function () {
+function setupShareLink(){
+  document.getElementById('btnCopyLink').addEventListener('click', function(){
+    navigator.clipboard.writeText(window.location.href).then(function(){
       Swal.fire({ icon:'success', title:'Link disalin!', timer:2200, showConfirmButton:false,
-        background:'#1a1a2e', color:'#fff', confirmButtonColor:'#2541b2' });
-    }).catch(function () {
+        background:'#1a1a2e', color:'#fff' });
+    }).catch(function(){
       Swal.fire({ icon:'info', title:'Salin manual',
         html:'<code style="word-break:break-all">' + window.location.href + '</code>',
         background:'#1a1a2e', color:'#fff' });
@@ -549,77 +600,200 @@ function setupShareLink() {
 }
 
 /* ============================================================
-   LOAD DAFTAR SISWA → RENDER ROSTER
+   LOAD STUDENT LIST
+   renderRoster = true  → juga render ke tab Input Presensi
+   renderRoster = false → hanya update tab Kelola Siswa
 ============================================================ */
-function loadStudentList() {
+function loadStudentList(renderRoster){
+  if(renderRoster){
+    document.getElementById('rosterBody').innerHTML =
+      '<tr><td colspan="3" class="text-center py-4 opacity-60">' +
+      '<span class="spinner-border spinner-border-sm me-2"></span>Memuat daftar siswa...</td></tr>';
+  }
+  showSiswaLoading(true);
+
   callApi('getStudentList')
-    .then(function (res) {
-      if (!res || !res.success) throw new Error((res && res.message) || 'Respon tidak valid');
+    .then(function(res){
+      if(!res || !res.success) throw new Error((res && res.message) || 'Respon tidak valid');
       daftarSiswa = res.data;
-      renderRoster(daftarSiswa);
+      if(renderRoster) buildRoster(daftarSiswa);
+      buildSiswaList(daftarSiswa);
     })
-    .catch(function (err) {
+    .catch(function(err){
+      showSiswaLoading(false);
       Swal.fire({ icon:'error', title:'Gagal memuat daftar siswa',
         text: err.message, background:'#1a1a2e', color:'#fff' });
     });
 }
 
 /* ============================================================
-   RENDER TABEL ROSTER
+   RENDER: ROSTER (TAB INPUT PRESENSI)
 ============================================================ */
-function renderRoster(siswaArr) {
+function buildRoster(arr){
   const tbody = document.getElementById('rosterBody');
   tbody.innerHTML = '';
-
-  siswaArr.forEach(function (s, idx) {
+  arr.forEach(function(s, idx){
     const tr = document.createElement('tr');
     tr.className = 'roster-row';
-    tr.dataset.nis = s.nis;
-    tr.dataset.nama = s.nama;
+    tr.dataset.nis = s.nis; tr.dataset.nama = s.nama;
 
-    const statuses = ['Hadir', 'Sakit', 'Izin', 'Alpa'];
-    const radioHtml = statuses.map(function (st) {
-      const id = 'r_' + s.nis + '_' + st;
-      // Default: Hadir terpilih
-      const checked = st === 'Hadir' ? 'checked' : '';
-      return '<input type="radio" name="status_' + s.nis + '" id="' + id + '" value="' + st + '" ' + checked + '>'
+    const pills = ['Hadir','Sakit','Izin','Alpa'].map(function(st){
+      const id  = 'r_' + s.nis + '_' + st;
+      const chk = st === 'Hadir' ? 'checked' : '';
+      return '<input type="radio" name="status_' + s.nis + '" id="' + id + '" value="' + st + '" ' + chk + '>'
            + '<label class="radio-pill" for="' + id + '">' + st + '</label>';
     }).join('');
 
     tr.innerHTML =
-      '<td><span class="no-siswa">' + (idx + 1) + '</span></td>' +
-      '<td><div class="nama-siswa">' + escapeHtml(s.nama) + '</div>' +
+      '<td><span class="no-siswa">' + (idx+1) + '</span></td>' +
+      '<td><div class="nama-siswa">' + esc(s.nama) + '</div>' +
           '<div style="font-size:.72rem;opacity:.55">NIS: ' + s.nis + '</div></td>' +
-      '<td><div class="radio-group">' + radioHtml + '</div></td>';
+      '<td><div class="radio-group">' + pills + '</div></td>';
 
     tbody.appendChild(tr);
   });
-
-  // Attach event delegation untuk counter
   tbody.addEventListener('change', updateCounter);
   updateCounter();
 }
 
 /* ============================================================
-   QUICK-SET SEMUA STATUS
+   RENDER: DAFTAR SISWA (TAB KELOLA SISWA)
 ============================================================ */
-function setAllStatus(status) {
-  daftarSiswa.forEach(function (s) {
-    const radio = document.querySelector('input[name="status_' + s.nis + '"][value="' + status + '"]');
-    if (radio) radio.checked = true;
+function buildSiswaList(arr){
+  showSiswaLoading(false);
+  document.getElementById('siswaCount').textContent = arr.length;
+
+  const tbody = document.getElementById('siswaListBody');
+  tbody.innerHTML = '';
+
+  if(!arr.length){
+    document.getElementById('siswaTableWrap').style.display = 'none';
+    document.getElementById('siswaEmpty').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('siswaTableWrap').style.display = '';
+  document.getElementById('siswaEmpty').style.display = 'none';
+
+  arr.forEach(function(s, idx){
+    const tr = document.createElement('tr');
+    tr.className = 'siswa-item';
+    tr.innerHTML =
+      '<td><span class="no-siswa">' + (idx+1) + '</span></td>' +
+      '<td><div class="siswa-nama">' + esc(s.nama) + '</div></td>' +
+      '<td><span class="siswa-nis">' + esc(s.nis) + '</span></td>' +
+      '<td><button class="btn-hapus" data-nis="' + esc(s.nis) + '" data-nama="' + esc(s.nama) + '">' +
+          '<i class="bi bi-trash3-fill me-1"></i>Hapus</button></td>';
+    tbody.appendChild(tr);
+  });
+
+  // Event delegation untuk tombol hapus
+  tbody.querySelectorAll('.btn-hapus').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      handleHapusSiswa(btn.dataset.nis, btn.dataset.nama);
+    });
+  });
+}
+
+function showSiswaLoading(show){
+  document.getElementById('siswaLoadingWrap').style.display = show ? '' : 'none';
+  if(show){
+    document.getElementById('siswaTableWrap').style.display = 'none';
+    document.getElementById('siswaEmpty').style.display = 'none';
+  }
+}
+
+/* ============================================================
+   TAMBAH SISWA
+============================================================ */
+function handleTambahSiswa(){
+  const nis  = document.getElementById('inputNIS').value.trim();
+  const nama = document.getElementById('inputNama').value.trim();
+
+  if(!nis || !nama){
+    Swal.fire({ icon:'warning', title:'Data tidak lengkap',
+      text:'NIS dan Nama harus diisi.', background:'#1a1a2e', color:'#fff' });
+    return;
+  }
+
+  const btn = document.getElementById('btnTambah');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
+
+  callApi('addStudent', { nis, nama })
+    .then(function(res){
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-plus-circle-fill me-1"></i>Tambah';
+
+      if(res && res.success){
+        document.getElementById('inputNIS').value  = '';
+        document.getElementById('inputNama').value = '';
+        Swal.fire({ icon:'success', title:'Siswa Ditambahkan!', text: res.message,
+          timer:2000, showConfirmButton:false, background:'#1a1a2e', color:'#fff' });
+        // Refresh kedua tempat
+        loadStudentList(true);
+      } else {
+        Swal.fire({ icon:'error', title:'Gagal Menambah Siswa',
+          text:(res && res.message) || 'Terjadi kesalahan.', background:'#1a1a2e', color:'#fff' });
+      }
+    })
+    .catch(function(err){
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-plus-circle-fill me-1"></i>Tambah';
+      Swal.fire({ icon:'error', title:'Error', text: err.message, background:'#1a1a2e', color:'#fff' });
+    });
+}
+
+/* ============================================================
+   HAPUS SISWA
+============================================================ */
+function handleHapusSiswa(nis, nama){
+  Swal.fire({
+    icon: 'warning',
+    title: 'Hapus Siswa?',
+    html: 'Yakin ingin menghapus <b>' + esc(nama) + '</b> (NIS: ' + esc(nis) + ') dari daftar kelas?'
+        + '<br><small style="opacity:.7">Data presensi yang sudah tersimpan tidak ikut terhapus.</small>',
+    showCancelButton: true,
+    confirmButtonText: '<i class="bi bi-trash3-fill me-1"></i>Ya, Hapus',
+    cancelButtonText:  'Batalkan',
+    confirmButtonColor: '#e0265f',
+    background:'#1a1a2e', color:'#fff'
+  }).then(function(result){
+    if(!result.isConfirmed) return;
+
+    callApi('deleteStudent', { nis })
+      .then(function(res){
+        if(res && res.success){
+          Swal.fire({ icon:'success', title:'Dihapus!', text: res.message,
+            timer:2000, showConfirmButton:false, background:'#1a1a2e', color:'#fff' });
+          loadStudentList(true);
+        } else {
+          Swal.fire({ icon:'error', title:'Gagal Menghapus',
+            text:(res && res.message) || 'Terjadi kesalahan.', background:'#1a1a2e', color:'#fff' });
+        }
+      })
+      .catch(function(err){
+        Swal.fire({ icon:'error', title:'Error', text: err.message, background:'#1a1a2e', color:'#fff' });
+      });
+  });
+}
+
+/* ============================================================
+   QUICK-SET & COUNTER
+============================================================ */
+function setAllStatus(status){
+  daftarSiswa.forEach(function(s){
+    const r = document.querySelector('input[name="status_' + s.nis + '"][value="' + status + '"]');
+    if(r) r.checked = true;
   });
   updateCounter();
 }
 
-/* ============================================================
-   UPDATE COUNTER BAR
-============================================================ */
-function updateCounter() {
-  const counts = { Hadir: 0, Sakit: 0, Izin: 0, Alpa: 0, Belum: 0 };
-  daftarSiswa.forEach(function (s) {
-    const checked = document.querySelector('input[name="status_' + s.nis + '"]:checked');
-    if (checked) counts[checked.value]++;
-    else counts.Belum++;
+function updateCounter(){
+  const counts = { Hadir:0, Sakit:0, Izin:0, Alpa:0, Belum:0 };
+  daftarSiswa.forEach(function(s){
+    const chk = document.querySelector('input[name="status_' + s.nis + '"]:checked');
+    if(chk) counts[chk.value]++; else counts.Belum++;
   });
   document.getElementById('cntHadir').textContent = counts.Hadir;
   document.getElementById('cntSakit').textContent = counts.Sakit;
@@ -629,99 +803,70 @@ function updateCounter() {
 }
 
 /* ============================================================
-   SUBMIT BULK PRESENSI
+   BULK SUBMIT
 ============================================================ */
-function handleBulkSubmit() {
+function handleBulkSubmit(){
   const tanggal   = document.getElementById('tanggal').value;
   const semester  = document.querySelector('input[name="semester"]:checked').value;
   const pertemuan = document.getElementById('pertemuan').value;
 
-  if (!tanggal) {
-    Swal.fire({ icon:'warning', title:'Tanggal belum diisi', background:'#1a1a2e', color:'#fff' });
-    return;
+  if(!tanggal){
+    Swal.fire({ icon:'warning', title:'Tanggal belum diisi', background:'#1a1a2e', color:'#fff' }); return;
   }
 
-  // Kumpulkan data tiap siswa
-  const records = [];
-  let adaBelum = false;
-
-  daftarSiswa.forEach(function (s) {
-    const checked = document.querySelector('input[name="status_' + s.nis + '"]:checked');
-    if (!checked) { adaBelum = true; return; }
-    records.push({
-      tanggal: tanggal,
-      nis: s.nis,
-      nama: s.nama,
-      status: checked.value,
-      semester: semester,
-      pertemuan: pertemuan
-    });
+  const records = []; let adaBelum = false;
+  daftarSiswa.forEach(function(s){
+    const chk = document.querySelector('input[name="status_' + s.nis + '"]:checked');
+    if(!chk){ adaBelum = true; return; }
+    records.push({ tanggal, nis: s.nis, nama: s.nama, status: chk.value, semester, pertemuan });
   });
 
-  if (adaBelum) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Ada siswa yang belum dipilih statusnya',
-      text: 'Pastikan semua siswa sudah dipilih status kehadirannya, atau gunakan tombol "Tandai Semua" terlebih dahulu.',
-      background: '#1a1a2e', color: '#fff'
-    });
-    return;
+  if(adaBelum){
+    Swal.fire({ icon:'warning', title:'Ada siswa belum dipilih',
+      text:'Gunakan tombol "Tandai Semua" lalu koreksi yang berbeda.',
+      background:'#1a1a2e', color:'#fff' }); return;
   }
 
-  // Konfirmasi sebelum kirim
-  const countHtml = '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px">'
-    + makeBadge('Hadir', records.filter(r=>r.status==='Hadir').length, '#16d191')
-    + makeBadge('Sakit', records.filter(r=>r.status==='Sakit').length, '#ffb648')
-    + makeBadge('Izin',  records.filter(r=>r.status==='Izin').length,  '#4cc9f0')
-    + makeBadge('Alpa',  records.filter(r=>r.status==='Alpa').length,  '#ff5d8f')
-    + '</div>';
+  const mkBadge = (lbl, n, col) =>
+    '<span style="background:' + col + '22;color:' + col + ';border-radius:20px;padding:4px 12px;font-weight:700;font-size:.85rem">'
+    + n + ' ' + lbl + '</span>';
 
   Swal.fire({
-    icon: 'question',
-    title: 'Simpan Presensi?',
+    icon:'question', title:'Simpan Presensi?',
     html: '<b>Pertemuan ke-' + pertemuan + ' &mdash; Semester ' + semester + '</b><br>'
-        + formatTanggalIndo(tanggal) + '<br>' + countHtml,
-    showCancelButton: true,
-    confirmButtonText: 'Ya, Simpan',
-    cancelButtonText: 'Batalkan',
-    confirmButtonColor: '#2541b2',
-    background: '#1a1a2e', color: '#fff'
-  }).then(function (result) {
-    if (!result.isConfirmed) return;
-    doSubmit(records);
-  });
+        + formatTgl(tanggal)
+        + '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">'
+        + mkBadge('Hadir', records.filter(r=>r.status==='Hadir').length, '#16d191')
+        + mkBadge('Sakit', records.filter(r=>r.status==='Sakit').length, '#ffb648')
+        + mkBadge('Izin',  records.filter(r=>r.status==='Izin').length,  '#4cc9f0')
+        + mkBadge('Alpa',  records.filter(r=>r.status==='Alpa').length,  '#ff5d8f')
+        + '</div>',
+    showCancelButton:true, confirmButtonText:'Ya, Simpan', cancelButtonText:'Batalkan',
+    confirmButtonColor:'#2541b2', background:'#1a1a2e', color:'#fff'
+  }).then(function(res){ if(res.isConfirmed) doSubmit(records); });
 }
 
-function makeBadge(label, count, color) {
-  return '<span style="background:' + color + '22;color:' + color + ';border-radius:20px;padding:4px 12px;font-weight:700;font-size:.85rem">'
-       + count + ' ' + label + '</span>';
-}
-
-function doSubmit(records) {
+function doSubmit(records){
   const btn = document.getElementById('btnSubmit');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan ' + records.length + ' data...';
 
   callApi('submitBulkAttendance', records)
-    .then(function (res) {
+    .then(function(res){
       btn.disabled = false;
       btn.innerHTML = '<i class="bi bi-send-fill me-2"></i>Simpan Presensi Seluruh Kelas';
-
-      if (res && res.success) {
-        Swal.fire({
-          icon: 'success', title: 'Presensi Tersimpan!',
-          html: '<b>' + res.saved + ' data</b> berhasil disimpan ke Google Sheets.'
+      if(res && res.success){
+        Swal.fire({ icon:'success', title:'Presensi Tersimpan!',
+          html:'<b>' + res.saved + ' data</b> berhasil disimpan ke Google Sheets.'
               + (res.failed > 0 ? '<br><small style="color:#ff5d8f">' + res.failed + ' gagal.</small>' : ''),
-          confirmButtonColor: '#2541b2', background: '#1a1a2e', color: '#fff'
-        });
+          confirmButtonColor:'#2541b2', background:'#1a1a2e', color:'#fff' });
         loadSummaryData();
       } else {
         Swal.fire({ icon:'error', title:'Gagal Menyimpan',
-          text: (res && res.message) || 'Terjadi kesalahan.',
-          background:'#1a1a2e', color:'#fff' });
+          text:(res && res.message)||'Terjadi kesalahan.', background:'#1a1a2e', color:'#fff' });
       }
     })
-    .catch(function (err) {
+    .catch(function(err){
       btn.disabled = false;
       btn.innerHTML = '<i class="bi bi-send-fill me-2"></i>Simpan Presensi Seluruh Kelas';
       Swal.fire({ icon:'error', title:'Error', text: err.message, background:'#1a1a2e', color:'#fff' });
@@ -729,146 +874,122 @@ function doSubmit(records) {
 }
 
 /* ============================================================
-   REKAP DATA
+   REKAP
 ============================================================ */
-function loadSummaryData() {
+function loadSummaryData(){
   callApi('getSummaryData')
-    .then(function (res) {
-      if (!res || !res.success) return;
+    .then(function(res){
+      if(!res || !res.success) return;
       summaryCache = res;
       populateMonthSelector(res.monthly);
       renderRiwayatTable(res.raw);
       renderSemesterChart(res.semester);
       renderSemesterStatBoxes(res.semester);
     })
-    .catch(function (err) { console.error(err); });
+    .catch(function(err){ console.error(err); });
 }
 
-function populateMonthSelector(monthly) {
-  const select = document.getElementById('selectBulan');
-  const keys   = Object.keys(monthly);
-  const curr   = select.value;
-  select.innerHTML = '<option value="">-- Pilih Bulan --</option>';
-  keys.forEach(function (key) {
-    const opt = document.createElement('option');
-    opt.value = key; opt.textContent = monthly[key].label;
-    select.appendChild(opt);
+function populateMonthSelector(monthly){
+  const sel  = document.getElementById('selectBulan');
+  const keys = Object.keys(monthly);
+  const curr = sel.value;
+  sel.innerHTML = '<option value="">-- Pilih Bulan --</option>';
+  keys.forEach(function(key){
+    const o = document.createElement('option');
+    o.value = key; o.textContent = monthly[key].label; sel.appendChild(o);
   });
-  if (keys.length > 0) select.value = keys.includes(curr) ? curr : keys[keys.length - 1];
-  document.getElementById('selectBulan').addEventListener('change', renderBulananDetail);
+  if(keys.length) sel.value = keys.includes(curr) ? curr : keys[keys.length-1];
+  sel.onchange = renderBulananDetail;
   renderBulananDetail();
 }
 
-function renderBulananDetail() {
-  if (!summaryCache) return;
+function renderBulananDetail(){
+  if(!summaryCache) return;
   const key     = document.getElementById('selectBulan').value;
   const monthly = summaryCache.monthly;
-  const emptyEl = document.getElementById('emptyBulanan');
+  const empty   = document.getElementById('emptyBulanan');
   const statBox = document.getElementById('bulananStatBox');
-
-  if (!key || !monthly[key]) {
-    emptyEl.style.display = 'block'; statBox.style.display = 'none';
-    if (chartBulananInstance) { chartBulananInstance.destroy(); chartBulananInstance = null; }
+  if(!key || !monthly[key]){
+    empty.style.display='block'; statBox.style.display='none';
+    if(chartBulananInstance){ chartBulananInstance.destroy(); chartBulananInstance=null; }
     return;
   }
-  const data = monthly[key];
-  emptyEl.style.display = 'none'; statBox.style.display = 'flex';
-
-  document.getElementById('numHadirBulan').textContent = data.Hadir;
-  document.getElementById('numSakitBulan').textContent = data.Sakit;
-  document.getElementById('numIzinBulan').textContent  = data.Izin;
-  document.getElementById('numAlpaBulan').textContent  = data.Alpa;
-
+  const d = monthly[key];
+  empty.style.display='none'; statBox.style.display='flex';
+  document.getElementById('numHadirBulan').textContent = d.Hadir;
+  document.getElementById('numSakitBulan').textContent = d.Sakit;
+  document.getElementById('numIzinBulan').textContent  = d.Izin;
+  document.getElementById('numAlpaBulan').textContent  = d.Alpa;
   const ctx = document.getElementById('chartBulanan').getContext('2d');
-  if (chartBulananInstance) chartBulananInstance.destroy();
+  if(chartBulananInstance) chartBulananInstance.destroy();
   chartBulananInstance = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Hadir', 'Sakit', 'Izin', 'Alpa'],
-      datasets: [{ data: [data.Hadir, data.Sakit, data.Izin, data.Alpa],
-        backgroundColor: ['#16d191','#ffb648','#4cc9f0','#ff5d8f'], borderWidth: 0 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position:'bottom', labels:{ color:'#fff', font:{ size:12 } } },
-        title: { display:true, text: data.label, color:'#fff', font:{ size:14 } }
-      }
-    }
+    type:'doughnut',
+    data:{ labels:['Hadir','Sakit','Izin','Alpa'],
+      datasets:[{ data:[d.Hadir,d.Sakit,d.Izin,d.Alpa],
+        backgroundColor:['#16d191','#ffb648','#4cc9f0','#ff5d8f'], borderWidth:0 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'bottom',labels:{color:'#fff',font:{size:12}}},
+                title:{display:true,text:d.label,color:'#fff',font:{size:14}} } }
   });
 }
 
-function renderRiwayatTable(raw) {
+function renderRiwayatTable(raw){
   const tbody = document.getElementById('tabelRiwayat');
   tbody.innerHTML = '';
-  if (!raw || raw.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 opacity-75">Belum ada riwayat presensi.</td></tr>';
+  if(!raw || !raw.length){
+    tbody.innerHTML='<tr><td colspan="6" class="text-center py-4 opacity-75">Belum ada riwayat presensi.</td></tr>';
     return;
   }
-  raw.slice(0, 80).forEach(function (item) {
+  raw.slice(0,80).forEach(function(item){
     const tr = document.createElement('tr');
     tr.innerHTML =
-      '<td>' + formatTanggalIndo(item.tanggal) + '</td>' +
-      '<td>' + escapeHtml(item.nama) + '</td>' +
-      '<td>' + escapeHtml(String(item.nis)) + '</td>' +
-      '<td><span class="badge-status badge-' + item.status + '">' + item.status + '</span></td>' +
-      '<td>' + item.semester + '</td>' +
-      '<td>' + (item.pertemuan || '-') + '</td>';
+      '<td>'+formatTgl(item.tanggal)+'</td><td>'+esc(item.nama)+'</td><td>'+esc(String(item.nis))+'</td>'+
+      '<td><span class="badge-status badge-'+item.status+'">'+item.status+'</span></td>'+
+      '<td>'+item.semester+'</td><td>'+(item.pertemuan||'-')+'</td>';
     tbody.appendChild(tr);
   });
 }
 
-function renderSemesterChart(semester) {
+function renderSemesterChart(sem){
   const ctx = document.getElementById('chartSemester').getContext('2d');
-  if (chartSemesterInstance) chartSemesterInstance.destroy();
+  if(chartSemesterInstance) chartSemesterInstance.destroy();
   chartSemesterInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Hadir', 'Sakit', 'Izin', 'Alpa'],
-      datasets: [
-        { label:'Semester Ganjil',
-          data: [semester.Ganjil.Hadir, semester.Ganjil.Sakit, semester.Ganjil.Izin, semester.Ganjil.Alpa],
-          backgroundColor:'#4361ee', borderRadius:8 },
-        { label:'Semester Genap',
-          data: [semester.Genap.Hadir, semester.Genap.Sakit, semester.Genap.Izin, semester.Genap.Alpa],
-          backgroundColor:'#00d4ff', borderRadius:8 }
-      ]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      scales: {
-        x: { ticks:{color:'#fff'}, grid:{color:'rgba(255,255,255,.08)'} },
-        y: { ticks:{color:'#fff',precision:0}, grid:{color:'rgba(255,255,255,.08)'}, beginAtZero:true }
-      },
-      plugins: { legend:{labels:{color:'#fff'}} }
-    }
+    type:'bar',
+    data:{ labels:['Hadir','Sakit','Izin','Alpa'],
+      datasets:[
+        { label:'Semester Ganjil', data:[sem.Ganjil.Hadir,sem.Ganjil.Sakit,sem.Ganjil.Izin,sem.Ganjil.Alpa], backgroundColor:'#4361ee', borderRadius:8 },
+        { label:'Semester Genap',  data:[sem.Genap.Hadir, sem.Genap.Sakit, sem.Genap.Izin, sem.Genap.Alpa],  backgroundColor:'#00d4ff', borderRadius:8 }
+      ] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      scales:{ x:{ticks:{color:'#fff'},grid:{color:'rgba(255,255,255,.08)'}},
+               y:{ticks:{color:'#fff',precision:0},grid:{color:'rgba(255,255,255,.08)'},beginAtZero:true} },
+      plugins:{ legend:{labels:{color:'#fff'}} } }
   });
 }
 
-function renderSemesterStatBoxes(semester) {
-  document.getElementById('ganjilHadir').textContent = semester.Ganjil.Hadir;
-  document.getElementById('ganjilSakit').textContent = semester.Ganjil.Sakit;
-  document.getElementById('ganjilIzin').textContent  = semester.Ganjil.Izin;
-  document.getElementById('ganjilAlpa').textContent  = semester.Ganjil.Alpa;
-  document.getElementById('genapHadir').textContent  = semester.Genap.Hadir;
-  document.getElementById('genapSakit').textContent  = semester.Genap.Sakit;
-  document.getElementById('genapIzin').textContent   = semester.Genap.Izin;
-  document.getElementById('genapAlpa').textContent   = semester.Genap.Alpa;
+function renderSemesterStatBoxes(sem){
+  document.getElementById('ganjilHadir').textContent = sem.Ganjil.Hadir;
+  document.getElementById('ganjilSakit').textContent = sem.Ganjil.Sakit;
+  document.getElementById('ganjilIzin').textContent  = sem.Ganjil.Izin;
+  document.getElementById('ganjilAlpa').textContent  = sem.Ganjil.Alpa;
+  document.getElementById('genapHadir').textContent  = sem.Genap.Hadir;
+  document.getElementById('genapSakit').textContent  = sem.Genap.Sakit;
+  document.getElementById('genapIzin').textContent   = sem.Genap.Izin;
+  document.getElementById('genapAlpa').textContent   = sem.Genap.Alpa;
 }
 
 /* ============================================================
    UTILS
 ============================================================ */
-function formatTanggalIndo(isoDate) {
-  if (!isoDate) return '-';
-  const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const p = isoDate.split('-');
-  if (p.length !== 3) return isoDate;
-  return p[2] + ' ' + bulan[parseInt(p[1],10)-1] + ' ' + p[0];
+function formatTgl(iso){
+  if(!iso) return '-';
+  const b=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const p=iso.split('-');
+  if(p.length!==3) return iso;
+  return p[2]+' '+b[parseInt(p[1],10)-1]+' '+p[0];
 }
-
-function escapeHtml(str) {
-  if (str === null || str === undefined) return '';
+function esc(str){
+  if(str===null||str===undefined) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
